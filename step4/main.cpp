@@ -19,6 +19,7 @@ static Shader *shader;
 static std::vector<cs4722::Artifact*> artf_list;
 
 static cs4722::HeightFieldFNL *terrain_height_field;
+static cs4722::Shape* terrain_shape;
 static glm::vec3 terrain_scale = glm::vec3(100, 10, 100);
 static glm::vec3 terrain_translate = glm::vec3(0,0,0);
 static bool movement_restricted = true;
@@ -75,15 +76,13 @@ void init()
         case 5: terrain_height_field->noiseType = FastNoiseLite::NoiseType_Value;
             break;
     }
-
-
     terrain_height_field->numberOfOctaves = 4;
 //    terrain_height_field->ping_pong_strength = 7;
     terrain_height_field->generate();
-    cs4722::Shape* b = new cs4722::Terrain(terrain_height_field);
+    terrain_shape = new cs4722::Terrain(terrain_height_field);
 
     auto* artf = new cs4722::Artifact();
-    artf->theShape = b;
+    artf->theShape = terrain_shape;
 
     artf->worldTransformation->multiplyScale(terrain_scale);
     artf->worldTransformation->multiplyTranslation(terrain_translate);
@@ -93,52 +92,48 @@ void init()
     terrain_height_field->translate = terrain_translate;
 
     // Create and place artifacts on the terrain
-    // Each artifact will be placed at different positions on the terrain
-    
-    // Cube artifact at position (20, ?, 20)
+    // Each artifact will be placed at different positions on the terrain    // Cube artifact at position (20, ?, 20)
     auto* cube_rotating_transform = new cs4722::TransformationAnimationRotating();
     cube_rotating_transform->rotationRate = 7.5 * 2.0 * M_PI / 60.0; // 7.5 rotations per minute in radians per second
     cube_rotating_transform->rotationAxis = glm::vec3(0, 1, 0); // rotate about Y axis
-    auto* cube_artifact = new cs4722::Artifact(cube_rotating_transform);
-    cube_artifact->theShape = new cs4722::Block();
     float cube_x = 20.0f, cube_z = 20.0f;
     float cube_terrain_height = terrain_height_field->altitude(cube_x, cube_z);
+    cube_rotating_transform->rotationCenter = glm::vec3(cube_x, cube_terrain_height + 2.0f, cube_z);
+    auto* cube_artifact = new cs4722::Artifact(cube_rotating_transform);
+    cube_artifact->theShape = new cs4722::Block();
     cube_artifact->worldTransformation->multiplyScale(glm::vec3(2.0f, 4.0f, 2.0f)); // width 2, height 4, depth 2
     cube_artifact->worldTransformation->multiplyTranslation(glm::vec3(cube_x, cube_terrain_height + 2.0f, cube_z)); // +2 to center it above ground
-    artf_list.push_back(cube_artifact);
-    
-    // Cylinder artifact at position (80, ?, 30)
+    artf_list.push_back(cube_artifact);    // Cylinder artifact at position (80, ?, 30)
     auto* cylinder_rotating_transform = new cs4722::TransformationAnimationRotating();
     cylinder_rotating_transform->rotationRate = 7.5 * 2.0 * M_PI / 60.0; // 7.5 rotations per minute in radians per second
     cylinder_rotating_transform->rotationAxis = glm::vec3(0, 1, 0); // rotate about Y axis
-    auto* cylinder_artifact = new cs4722::Artifact(cylinder_rotating_transform);
-    cylinder_artifact->theShape = new cs4722::Cylinder();
     float cyl_x = 80.0f, cyl_z = 30.0f;
     float cyl_terrain_height = terrain_height_field->altitude(cyl_x, cyl_z);
+    cylinder_rotating_transform->rotationCenter = glm::vec3(cyl_x, cyl_terrain_height + 2.0f, cyl_z);
+    auto* cylinder_artifact = new cs4722::Artifact(cylinder_rotating_transform);
+    cylinder_artifact->theShape = new cs4722::Cylinder();
     cylinder_artifact->worldTransformation->multiplyScale(glm::vec3(2.0f, 4.0f, 2.0f)); // width 2, height 4, depth 2
     cylinder_artifact->worldTransformation->multiplyTranslation(glm::vec3(cyl_x, cyl_terrain_height + 2.0f, cyl_z)); // +2 to center it above ground
-    artf_list.push_back(cylinder_artifact);
-    
-    // Sphere artifact at position (30, ?, 70)
+    artf_list.push_back(cylinder_artifact);    // Sphere artifact at position (30, ?, 70)
     auto* sphere_rotating_transform = new cs4722::TransformationAnimationRotating();
     sphere_rotating_transform->rotationRate = 7.5 * 2.0 * M_PI / 60.0; // 7.5 rotations per minute in radians per second
     sphere_rotating_transform->rotationAxis = glm::vec3(0, 1, 0); // rotate about Y axis
-    auto* sphere_artifact = new cs4722::Artifact(sphere_rotating_transform);
-    sphere_artifact->theShape = new cs4722::Sphere();
     float sphere_x = 30.0f, sphere_z = 70.0f;
     float sphere_terrain_height = terrain_height_field->altitude(sphere_x, sphere_z);
+    sphere_rotating_transform->rotationCenter = glm::vec3(sphere_x, sphere_terrain_height + 2.0f, sphere_z);
+    auto* sphere_artifact = new cs4722::Artifact(sphere_rotating_transform);
+    sphere_artifact->theShape = new cs4722::Sphere();
     sphere_artifact->worldTransformation->multiplyScale(glm::vec3(2.0f, 4.0f, 2.0f)); // width 2, height 4, depth 2
     sphere_artifact->worldTransformation->multiplyTranslation(glm::vec3(sphere_x, sphere_terrain_height + 2.0f, sphere_z)); // +2 to center it above ground
-    artf_list.push_back(sphere_artifact);
-    
-    // Torus artifact at position (70, ?, 80)
+    artf_list.push_back(sphere_artifact);    // Torus artifact at position (70, ?, 80)
     auto* torus_rotating_transform = new cs4722::TransformationAnimationRotating();
     torus_rotating_transform->rotationRate = 7.5 * 2.0 * M_PI / 60.0; // 7.5 rotations per minute in radians per second
     torus_rotating_transform->rotationAxis = glm::vec3(0, 1, 0); // rotate about Y axis
-    auto* torus_artifact = new cs4722::Artifact(torus_rotating_transform);
-    torus_artifact->theShape = new cs4722::Torus();
     float torus_x = 70.0f, torus_z = 80.0f;
     float torus_terrain_height = terrain_height_field->altitude(torus_x, torus_z);
+    torus_rotating_transform->rotationCenter = glm::vec3(torus_x, torus_terrain_height + 2.0f, torus_z);
+    auto* torus_artifact = new cs4722::Artifact(torus_rotating_transform);
+    torus_artifact->theShape = new cs4722::Torus();
     torus_artifact->worldTransformation->multiplyScale(glm::vec3(2.0f, 4.0f, 2.0f)); // width 2, height 4, depth 2
     torus_artifact->worldTransformation->multiplyTranslation(glm::vec3(torus_x, torus_terrain_height + 2.0f, torus_z)); // +2 to center it above ground
     artf_list.push_back(torus_artifact);
@@ -165,12 +160,10 @@ void render()
     auto time = glfwGetTime();
     auto delta_time = time - last_time;
     last_time = time;
-
-
     for (auto artf : artf_list) {
 
         // Call animation step for rotating artifacts (skip terrain)
-        if (artf->theShape != b) {
+        if (artf->theShape != terrain_shape) {
             artf->worldTransformation->animationStep(time, delta_time);
         }
 
@@ -299,9 +292,7 @@ void move_callback(GLFWwindow* window, double xpos, double ypos)
     // Save camera directions at the beginning (bonus feature)
     auto saved_up = view->cameraUp;
     auto saved_forward = view->cameraForward;
-    auto saved_left = view->cameraLeft;
-
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT))
+    auto saved_left = view->cameraLeft;    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT))
     {
         auto const rot_lr = glm::mat3(glm::rotate(glm::identity<glm::mat4>(),
             static_cast<float>(-dx * lr_pan_scale), glm::vec3(0, 1, 0)));
@@ -313,10 +304,8 @@ void move_callback(GLFWwindow* window, double xpos, double ypos)
             static_cast<float>(dy * ud_pan_scale), view->cameraLeft));
         view->cameraUp = rot_ud * view->cameraUp;
         view->cameraForward = rot_ud * view->cameraForward;
-    }
-    
-    // Bonus feature: prevent camera from flipping over
-    if (movement_restricted) {
+        
+        // Bonus feature: prevent camera from flipping over (works in both terrain and flying modes)
         // Test if the dot product of (0,1,0) and the camera's new up vector is negative
         if (glm::dot(glm::vec3(0, 1, 0), glm::vec3(view->cameraUp)) < 0) {
             // Restore saved camera directions

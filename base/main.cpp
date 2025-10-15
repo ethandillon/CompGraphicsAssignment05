@@ -226,6 +226,10 @@ void move_callback(GLFWwindow* window, double xpos, double ypos)
      last_x = xpos;
      last_y = ypos;
 
+    // Save camera directions at the beginning (bonus feature)
+    auto saved_up = view->cameraUp;
+    auto saved_forward = view->cameraForward;
+    auto saved_left = view->cameraLeft;
 
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT))
     {
@@ -239,6 +243,15 @@ void move_callback(GLFWwindow* window, double xpos, double ypos)
             static_cast<float>(dy * ud_pan_scale), view->cameraLeft));
         view->cameraUp = rot_ud * view->cameraUp;
         view->cameraForward = rot_ud * view->cameraForward;
+        
+        // Bonus feature: prevent camera from flipping over (works in both terrain and flying modes)
+        // Test if the dot product of (0,1,0) and the camera's new up vector is negative
+        if (glm::dot(glm::vec3(0, 1, 0), glm::vec3(view->cameraUp)) < 0) {
+            // Restore saved camera directions
+            view->cameraUp = saved_up;
+            view->cameraForward = saved_forward;
+            view->cameraLeft = saved_left;
+        }
     }
 #ifdef LOG_FLUP
     the_view->display_parameters();
